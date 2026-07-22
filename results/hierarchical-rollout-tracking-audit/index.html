@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hierarchical rollout tracking audit：GMR reference → SONIC physical execution</title>
+<meta name="description" content="A visual audit of where a frozen SONIC controller loses timing, amplitude, and local geometry across 15 representative G1 motion clips.">
+<style>
+  :root{--bg:#08111d;--panel:#0e1b2b;--ink:#e9f1fb;--soft:#b9c7d8;--line:#27415e;
+    --cyan:#62b6ff;--green:#78d6a3;--red:#ef7f8d;--yellow:#f1d06c;
+    --mono:"SFMono-Regular",Consolas,monospace}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.62 Inter,system-ui,-apple-system,"Noto Sans CJK SC",sans-serif}
+  main{max-width:1060px;margin:auto;padding:36px 22px 70px}h1{font-size:28px;margin:6px 0 12px}
+  h2{font-size:20px;color:var(--cyan);margin:0 0 14px}h3{font-size:16px;margin:20px 0 8px}
+  p,li,td{color:var(--soft)}a{color:#8bc8ff}code,pre{font-family:var(--mono)}
+  section{margin:16px 0;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:9px}
+  .meta{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 18px}.chip{border:1px solid var(--line);
+    border-radius:999px;padding:4px 9px;color:var(--soft);font-size:12px}.pass{color:var(--green)}
+  .fail{color:var(--red)}.draft,.partial{color:var(--yellow)}ul{margin:8px 0;padding-left:21px}
+  li{margin:5px 0}table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+  th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--ink)}
+  figure{margin:16px 0}img,video{width:100%;border:1px solid var(--line);border-radius:7px;background:#fff}
+  figcaption{color:#8fa2b8;font-size:12px;margin-top:6px}details{margin:10px 0;border-top:1px solid var(--line);padding-top:9px}
+  summary{cursor:pointer;color:#a9d5ff}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#06101a;
+    padding:12px;border-radius:6px;color:#d6e9ff;font-size:12px}.scroll{overflow-x:auto}
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0}.node{padding:12px 9px;
+    border:1px solid var(--line);border-radius:7px;background:#0a1725;text-align:center;color:var(--soft);font-size:12px}
+  .node strong{display:block;color:var(--ink);font-size:14px}.tested{border-color:#3976a8}.limited{border-color:#a88a39}
+  .danger{border-color:#a8505d}.right{text-align:right}.nowrap{white-space:nowrap}
+  .evidence-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;margin:16px 0}
+  .evidence-grid figure{width:100%;margin:0}.evidence-grid img,.evidence-grid video{display:block;width:100%}
+  .action-block{margin:20px 0 30px;padding-top:4px;border-top:1px solid var(--line)}
+  .action-block h3{color:var(--ink);font-size:18px}.observation{padding:10px 13px;border-left:3px solid var(--cyan);
+    background:#0a1725;color:var(--soft);border-radius:0 6px 6px 0}.status{font-size:11px;color:var(--yellow)}
+  @media(max-width:760px){main{padding:24px 12px 50px}section{padding:17px}h1{font-size:23px}
+    .flow,.evidence-grid{grid-template-columns:1fr}.node{text-align:left}}
+</style>
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="../../index.html" aria-label="OpenResults home"><span class="brand-mark">O</span>OpenResults</a>
+  <nav aria-label="Result navigation">
+    <a href="#conclusion">Conclusion</a>
+    <a href="#results">Evidence</a>
+    <a href="#appendix">Appendix</a>
+  </nav>
+</header>
+<main class="result-page">
+  <a class="back-link" href="../../index.html">All public results</a>
+  <h1>Hierarchical rollout tracking audit：GMR reference → SONIC physical execution</h1>
+  <div class="meta">
+    <span class="chip">2026-07-22 · Q1.3a</span>
+    <span class="chip">15 representative clips</span>
+    <span class="chip">frozen SONIC · zero residual</span>
+    <span class="chip draft">Analysis: draft</span>
+  </div>
+  <p>审查范围严格限定为 15 条 representative GMR clips：比较 SONIC 实际收到的 reference 与其
+  MuJoCo physical execution。重点是直接观看 tracking 后出现的 delay、幅度、轨迹和局部 keypoint 差异。</p>
+
+  <section id="conclusion">
+    <h2>1 · Conclusion</h2>
+    <p><strong>15 个代表性 clips 中最明显的问题是：动作越快、连续变化越多，physical execution
+    越容易跟不上 reference，表现为可直接看到的局部 delay。</strong></p>
+    <ul>
+      <li><strong>Delay：</strong>wave-arms 最明显；kick 中手臂的 delay 也比腿部更清楚。该现象在
+      startup 后仍持续，不只是第一帧不重叠。</li>
+      <li><strong>Amplitude：</strong>delay 常伴随动作范围变化，但不是所有肢体一起缩小；wave-arms
+      出现右腕幅度变小、左腕过冲的左右不对称。</li>
+      <li><strong>Geometry：</strong>动作仍可识别，但 EE trajectory、wrist/ankle keypoint 与 root/waist
+      会偏离；全身 MPJPE 不能表达误差集中在哪个肢体。</li>
+      <li><strong>Action dependence：</strong>慢动作或部分 walk clips 在 overlay 中看起来较一致；tracking
+      问题的明显程度取决于动作动态性和身体部位。</li>
+    </ul>
+  </section>
+
+  <section id="method">
+    <h2>2 · Method</h2>
+    <div class="flow" style="grid-template-columns:repeat(4,1fr)" aria-label="Reviewed rollout">
+      <div class="node tested"><strong>Reference</strong>GMR-retargeted G1 motion<br>50 Hz target trajectory</div>
+      <div class="node tested"><strong>Controller</strong>released frozen SONIC ONNX<br>zero residual</div>
+      <div class="node tested"><strong>Execution</strong>MuJoCo physical rollout<br>frame-aligned with reference</div>
+      <div class="node tested"><strong>Review</strong>overlay + plots + tables<br>human visual observation</div>
+    </div>
+    <div class="scroll"><table>
+      <tbody>
+        <tr><th>Reference 是什么</th><td>从 accepted GMR-retargeted Unitree G1 motions 中选出的 15 条代表性
+        clips；它们是 SONIC 实际收到的 joint/root trajectory，不是 humanoid 原始视频。</td></tr>
+        <tr><th>Controller 是什么</th><td>公开部署的 frozen SONIC ONNX tracking controller；不训练、不加入
+        residual action；在 MuJoCo 中按 50 Hz 执行。</td></tr>
+        <tr><th>15-clip scope</th><td>wave arms、kick、clap、punch、walk、handshake、crouch、cross arms、
+        bow；用于发现代表性问题，不表示所有动作都发生相同 failure。</td></tr>
+        <tr><th>Visual convention</th><td>overlay 中蓝色半透明机器人是 reference，实体机器人是 SONIC execution；
+        视频保留 reset → warmup → tracking，不隐藏最初 transition。</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>如何评判</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>问题</th><th>直接审查的证据</th><th>判断方式</th></tr></thead>
+      <tbody>
+        <tr><td>Delay / timing</td><td>完整 overlap MP4、EE position-vs-time、reference/execution peak-trough</td>
+        <td>看 execution 的关键事件是否晚于 reference；将最初 0.20 s transition 与后续 tracking 分开。</td></tr>
+        <tr><td>Amplitude</td><td>EE position PNG、peak/trough excursion、3D trajectory</td>
+        <td>分别比较左右 EE 的 excursion；不假设所有肢体统一缩小。</td></tr>
+        <tr><td>Geometry</td><td>MPJPE-L、每个 named keypoint 的 MPKPE/P95/max、heatmap、3D EE path</td>
+        <td>同时看全身平均与最差 body region，确认误差集中在哪个 wrist/ankle。</td></tr>
+        <tr><td>Dynamics</td><td>EE velocity/acceleration-vs-time</td>
+        <td>velocity 用于观察趋势、幅度和晚到；raw acceleration 只看包络，不解释单帧 spike。</td></tr>
+        <tr><td>Affect</td><td>matched-window V/A proxy 与 signed decay-vs-time</td>
+        <td>1.0 s 窗口、0.2 s stride；decay 定义为 reference − execution。正值表示执行侧衰减，
+        负值表示执行侧过冲；A-proxy 因重采样审计未完成而标为 provisional。</td></tr>
+        <tr><td>Physics</td><td>root error、MuJoCo contact 0/1、collision-conditioned foot movement</td>
+        <td>foot placement、contact state 与 slip 分开记录，不从脚的位置差直接推断滑步。</td></tr>
+      </tbody>
+    </table></div>
+    <p class="public-scope"><strong>Public evidence scope：</strong>本页包含解释结论所需的代表性视频、图表、指标与证据哈希；内部运行文档不属于公开材料。</p>
+  </section>
+
+  <section id="results">
+    <h2>3 · Results</h2>
+    <article class="action-block">
+      <h3>01 · Wave arms · dynamic · <code>val:1760:2:152:209</code></h3>
+      <p class="observation">直接观看可以看到 execution 持续落后于蓝色 reference；右腕动作范围缩小，
+      左腕则过冲。腰部和双脚也有位置差，但 contact 与 slip 需要分开解释。</p>
+      <div class="evidence-grid">
+        <figure><video controls preload="metadata" src="assets/01-wave_arms/overlay.mp4"></video>
+        <figcaption>Overlap video：蓝色为 reference，实体为 execution。</figcaption></figure>
+        <figure><img src="assets/01-wave_arms/peak_trough_annotation/ee_position_peak_trough_annotated.png" alt="Wave-arms peak trough delay and amplitude">
+        <figcaption>EE peak/trough：显示局部 delay、右腕缩幅和左腕过冲。</figcaption></figure>
+        <figure><img src="assets/01-wave_arms/ee_dynamics.png" alt="Wave-arms EE velocity acceleration">
+        <figcaption>EE dynamics：velocity 的 delay/幅度可见；raw acceleration 高频噪声较强。</figcaption></figure>
+        <figure><img src="assets/01-wave_arms/keypoint_error_over_time.png" alt="Wave-arms keypoint error heatmap">
+        <figcaption>Keypoint heatmap：误差主要集中在左右 wrist。</figcaption></figure>
+        <figure><img src="assets/01-wave_arms/va_decay_over_time.png" alt="Wave-arms V A decay over time">
+        <figcaption>V/A decay：1.0-s matched windows，0.2-s stride；signed decay = reference − execution；A-proxy provisional。</figcaption></figure>
+      </div>
+      <div class="scroll"><table><thead><tr><th>MPJPE-L ↓</th><th>PKE-P95 ↓</th><th>Right wrist MPKPE ↓</th><th>Left wrist MPKPE ↓</th><th>Local extrema delay</th></tr></thead>
+      <tbody><tr><td>112.63 mm</td><td>273.18 mm</td><td>286.95 mm</td><td>194.42 mm</td><td>3–9 frames</td></tr></tbody></table></div>
+    </article>
+
+    <article class="action-block">
+      <h3>02 · Kick · high-V · <code>val:1883:0:0:82</code></h3>
+      <p class="observation">手臂抬起存在明显 delay；腿部 tracking 相对更好。向前迈步的幅度较小，
+      使 execution 的整体位置比 reference 靠后；EE 图中的 y-axis 差异比视频观感更强。</p>
+      <div class="evidence-grid">
+        <figure><video controls preload="metadata" src="assets/02-kick/overlay.mp4"></video>
+        <figcaption>Overlap video：手臂 delay 比踢腿本身更明显。</figcaption></figure>
+        <figure><img src="assets/02-kick/ee_position_vs_time_standard_scale.png" alt="High-V kick EE position versus time">
+        <figcaption>EE position-vs-time：显示 reference/execution 分轴差异。</figcaption></figure>
+        <figure><img src="assets/02-kick/ee_trajectory_3d.png" alt="High-V kick 3D EE trajectory">
+        <figcaption>3D EE trajectory：空间路径差异比单一视角更清楚。</figcaption></figure>
+        <figure><img src="assets/02-kick/va_decay_over_time.png" alt="High-V kick V A decay over time">
+        <figcaption>V/A decay：与该 kick 视频和 EE 轨迹使用相同的 tracking 时间段。</figcaption></figure>
+      </div>
+      <div class="scroll"><table><thead><tr><th>MPJPE-L ↓</th><th>MPJPE-G ↓</th><th>PKE-P95 ↓</th><th>Largest MPKPE</th><th>Timing label</th></tr></thead>
+      <tbody><tr><td>48.74 mm</td><td>177.85 mm</td><td>141.03 mm</td><td>right wrist · 116.41 mm</td><td>NUMERIC_EE_LAG_CORROBORATED</td></tr></tbody></table></div>
+    </article>
+
+    <article class="action-block">
+      <h3>03 · Kick · typical · <code>val:1056:1:109:166</code></h3>
+      <p class="observation">与 high-V kick 相比，overlay 整体更一致，EE 差异也不明显；主要视觉疑问是
+      身体倾斜较大，看起来有稳定性风险。</p>
+      <div class="evidence-grid">
+        <figure><video controls preload="metadata" src="assets/03-kick/overlay.mp4"></video>
+        <figcaption>Overlap video：reference 与 execution 总体接近。</figcaption></figure>
+        <figure><img src="assets/03-kick/ee_position_vs_time_standard_scale.png" alt="Typical kick EE position versus time">
+        <figcaption>EE position-vs-time：仍有数值差异，但视觉影响较轻。</figcaption></figure>
+        <figure><img src="assets/03-kick/va_decay_over_time.png" alt="Typical kick V A decay over time">
+        <figcaption>V/A decay：与 high-V kick 使用同一 matched-window 口径。</figcaption></figure>
+      </div>
+      <div class="scroll"><table><thead><tr><th>MPJPE-L ↓</th><th>MPJPE-G ↓</th><th>PKE-P95 ↓</th><th>Largest MPKPE</th><th>Visual review</th></tr></thead>
+      <tbody><tr><td>42.08 mm</td><td>106.16 mm</td><td>111.68 mm</td><td>right wrist · 125.81 mm</td><td>总体一致；倾斜待复核</td></tr></tbody></table></div>
+    </article>
+
+    <article class="action-block">
+      <h3>05 · Punch · low-V · <code>val:452:1:247:463</code></h3>
+      <p class="observation">用户确认这是代表性单侧上肢动作。数值误差主要集中在 right wrist，
+      适合直接检查 punch event 在物理跟随中的幅度和时序。</p>
+      <div class="evidence-grid">
+        <figure><video controls preload="metadata" src="assets/05-punch/overlay.mp4"></video>
+        <figcaption>Punch overlap：蓝色为 reference，实体为 execution。</figcaption></figure>
+        <figure><img src="assets/05-punch/ee_position_vs_time_standard_scale.png" alt="Punch EE position versus time">
+        <figcaption>Punch EE position-vs-time：全宽显示左右 wrist 的 reference/execution 时序。</figcaption></figure>
+        <figure><img src="assets/05-punch/va_decay_over_time.png" alt="Punch V A decay over time">
+        <figcaption>Punch V/A decay：显示 matched-window proxy 与 reference − execution 差值。</figcaption></figure>
+      </div>
+      <div class="scroll"><table><thead><tr><th>MPJPE-L ↓</th><th>MPJPE-G ↓</th><th>PKE-P95 ↓</th><th>Largest MPKPE</th><th>Evidence role</th></tr></thead>
+      <tbody><tr><td>36.51 mm</td><td>53.14 mm</td><td>100.23 mm</td><td>right wrist · 102.68 mm</td><td>代表性单侧上肢动作</td></tr></tbody></table></div>
+    </article>
+
+    <article class="action-block">
+      <h3>08 · Handshake · typical · <code>val:63:1:553:706</code></h3>
+      <p class="observation">用户确认这是代表性局部误差案例。全身 MPJPE-L 为中等水平，但
+      left-wrist MPKPE 明显更高，展示了全身平均如何掩盖局部 EE 问题。</p>
+      <div class="evidence-grid">
+        <figure><video controls preload="metadata" src="assets/08-handshake/overlay.mp4"></video>
+        <figcaption>Handshake overlap：蓝色为 reference，实体为 execution。</figcaption></figure>
+        <figure><img src="assets/08-handshake/ee_position_vs_time_standard_scale.png" alt="Handshake EE position versus time">
+        <figcaption>Handshake EE position-vs-time：全宽显示左右 wrist 的 reference/execution 时序。</figcaption></figure>
+        <figure><img src="assets/08-handshake/va_decay_over_time.png" alt="Handshake V A decay over time">
+        <figcaption>Handshake V/A decay：与局部 wrist error 并列审查，不将两者合并成总分。</figcaption></figure>
+      </div>
+      <div class="scroll"><table><thead><tr><th>MPJPE-L ↓</th><th>MPJPE-G ↓</th><th>PKE-P95 ↓</th><th>Largest MPKPE</th><th>Evidence role</th></tr></thead>
+      <tbody><tr><td>35.03 mm</td><td>37.98 mm</td><td>142.31 mm</td><td>left wrist · 151.08 mm</td><td>局部 wrist error specialist</td></tr></tbody></table></div>
+    </article>
+
+    <article class="action-block">
+      <h3>06 · Walk · dynamic · <code>val:1262:1:53:91</code></h3>
+      <p class="observation">现有 overlay 中没有看到清楚的 root/leg separation；这是一个重要的
+      metric–visual mismatch：数值误差存在，但肉眼差异不如 wave-arms 明显。</p>
+      <div class="evidence-grid">
+        <figure><video controls preload="metadata" src="assets/06-walk/overlay.mp4"></video>
+        <figcaption>Walk overlap：作为 visually subtle/negative anchor。</figcaption></figure>
+        <figure><img src="assets/06-walk/va_decay_over_time.png" alt="Dynamic walk V A decay over time">
+        <figcaption>Walk V/A decay：与 overlay 的视觉负锚点并列审查。</figcaption></figure>
+      </div>
+      <div class="scroll"><table><thead><tr><th>MPJPE-L ↓</th><th>MPJPE-G ↓</th><th>PKE-P95 ↓</th><th>Largest MPKPE</th><th>Visual review</th></tr></thead>
+      <tbody><tr><td>57.98 mm</td><td>185.07 mm</td><td>129.12 mm</td><td>left wrist · 106.20 mm</td><td>root/leg gap 不明显</td></tr></tbody></table></div>
+    </article>
+
+    <h3>15 representative clips · MPJPE/MPKPE overview</h3>
+    <p class="status">01 为 detailed anchor；02、03、06 有 clip-specific comments；05 和 08 作为典型证据展开；
+    其余为 broad review。表中数值不能替代逐条人工结论。</p>
+    <div class="scroll"><table>
+      <thead><tr><th>#</th><th>Action / role</th><th>Segment</th><th>MPJPE-L (mm) ↓</th><th>PKE-P95 (mm) ↓</th><th>Largest MPKPE (mm) ↓</th><th>V decay R−X</th><th>A decay R−X <span class="nowrap">(prov.)</span></th><th>Review note</th></tr></thead>
+      <tbody>
+        <tr><td>01</td><td>wave arms / dynamic</td><td><code>val:1760:2:152:209</code></td><td>112.63</td><td>273.18</td><td>R wrist · 286.95</td><td>+0.059</td><td>−0.403</td><td>明显 delay + asymmetric amplitude</td></tr>
+        <tr><td>02</td><td>kick / high-V</td><td><code>val:1883:0:0:82</code></td><td>48.74</td><td>141.03</td><td>R wrist · 116.41</td><td>0.000</td><td>+0.148</td><td>手臂 delay；迈步幅度较小</td></tr>
+        <tr><td>03</td><td>kick / typical</td><td><code>val:1056:1:109:166</code></td><td>42.08</td><td>111.68</td><td>R wrist · 125.81</td><td>0.000</td><td>+0.048</td><td>总体较一致；身体倾斜</td></tr>
+        <tr><td>04</td><td>clap / high-V</td><td><code>val:160:0:0:42</code></td><td>42.70</td><td>149.74</td><td>L wrist · 137.78</td><td>0.000</td><td>+0.191</td><td>不是连续击掌 reference</td></tr>
+        <tr><td>05</td><td>punch / low-V</td><td><code>val:452:1:247:463</code></td><td>36.51</td><td>100.23</td><td>R wrist · 102.68</td><td>+0.159</td><td>+0.056</td><td>代表性证据已展开</td></tr>
+        <tr><td>06</td><td>walk / dynamic</td><td><code>val:1262:1:53:91</code></td><td>57.98</td><td>129.12</td><td>L wrist · 106.20</td><td>−0.055</td><td>0.000</td><td>视觉差异不明显</td></tr>
+        <tr><td>07</td><td>walk / typical</td><td><code>val:556:1:143:237</code></td><td>54.12</td><td>156.20</td><td>R wrist · 109.41</td><td>0.000</td><td>+0.003</td><td>broad review</td></tr>
+        <tr><td>08</td><td>handshake / typical</td><td><code>val:63:1:553:706</code></td><td>35.03</td><td>142.31</td><td>L wrist · 151.08</td><td>+0.104</td><td>−0.070</td><td>代表性证据已展开</td></tr>
+        <tr><td>09</td><td>handshake / high-V</td><td><code>val:773:1:91:312</code></td><td>38.09</td><td>145.09</td><td>R wrist · 149.46</td><td>+0.268</td><td>−0.031</td><td>broad review</td></tr>
+        <tr><td>10</td><td>crouch / typical</td><td><code>val:86:1:35:107</code></td><td>37.30</td><td>138.05</td><td>L wrist · 142.37</td><td>+0.131</td><td>+0.005</td><td>broad review</td></tr>
+        <tr><td>11</td><td>crouch / low-V</td><td><code>val:198:1:45:119</code></td><td>40.44</td><td>118.34</td><td>L wrist · 97.37</td><td>+0.196</td><td>−0.020</td><td>broad review</td></tr>
+        <tr><td>12</td><td>cross arms / high-V</td><td><code>val:472:1:205:324</code></td><td>28.56</td><td>94.75</td><td>R wrist · 90.79</td><td>+0.123</td><td>+0.006</td><td>broad review</td></tr>
+        <tr><td>13</td><td>bow / typical</td><td><code>val:528:1:51:119</code></td><td>45.74</td><td>84.11</td><td>R ankle · 73.88</td><td>+0.218</td><td>+0.090</td><td>broad review</td></tr>
+        <tr><td>14</td><td>wave arms / high-V</td><td><code>val:1070:2:214:385</code></td><td>22.43</td><td>95.15</td><td>L wrist · 100.59</td><td>+0.060</td><td>0.000</td><td>broad review</td></tr>
+        <tr><td>15</td><td>walk / low-V</td><td><code>val:1822:0:0:85</code></td><td>12.27</td><td>38.80</td><td>R wrist · 32.87</td><td>+0.014</td><td>−0.041</td><td>broad review</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="analysis">
+    <h2>4 · Analysis <span class="chip draft">用户观察整理稿</span></h2>
+    <ul>
+      <li><strong>Wave arms：</strong>overlap video 中 delay 非常直接，动作幅度和腰部/脚部位置也发生变化。
+      EE 图与 heatmap 进一步说明误差集中在 wrist；dynamics 图中的 velocity 同样显示晚到和幅度差，
+      acceleration 因二阶差分非常嘈杂。V/A 窗口图中 gap 随时间收窄并在末段变号，但用户对当前
+      V/A 滑动窗口量尺仍有疑问。</li>
+      <li><strong>Kick high-V：</strong>手臂抬起的 delay 明显，但踢腿本身跟得更好；向前一步的幅度变小，
+      使整体 execution 靠后。EE 图的 y-axis gap 较大，却没有在单一相机视频中同样明显。</li>
+      <li><strong>Kick typical：</strong>reference 与 execution 看起来总体一致，EE 差异较轻；主要疑问是身体
+      倾斜较大、看上去不够稳定。</li>
+      <li><strong>Punch、handshake 与 walk：</strong>用户认为 punch 和 handshake 也是代表性上肢跟随案例，
+      它们的最大 named MPKPE 均位于 wrist。dynamic walk 虽然数值误差不为零，但 overlay 中看不出
+      明显的 root/leg separation。</li>
+    </ul>
+  </section>
+
+  <section id="appendix">
+    <h2>5 · Appendix</h2>
+    <details>
+      <summary>Calculations and evidence</summary>
+      <h3>Worked calculations</h3>
+      <pre><code>Right-wrist loss = 207.772152 − 121.850409 = 85.921743 mm
+Right-wrist loss % = 85.921743 / 207.772152 = 41.353830%
+
+Left-wrist overrun = 274.021274 − 177.395253 = 96.626021 mm
+Left-wrist overrun % = 96.626021 / 177.395253 = 54.469338%
+
+Wave uniform-lag gain = 115.359155 − 114.060918 = 1.298237 mm
+Relative gain = 1.298237 / 115.359155 = 1.125387%
+
+Continuous-clap accounting = 127 one-event + 57 zero-event = 184 eligible clips
+Qualified three-event clips = 0</code></pre>
+      <h3>Authoritative evidence</h3>
+      <ul>
+        <li><code>diverse_review_packet/evidence.json</code> · SHA256
+        <code>48fb4de6b98ac7b4ec4f71e65ea602647c80f269b7d69ee6cd3ad05c1dc09c9b</code></li>
+        <li><code>dynamic_sonic_panel/evidence.json</code> · SHA256
+        <code>3930932ead82c7d05f15be0940ebfd01f742d8131950f4930ec6337eb8db177b</code></li>
+        <li><code>cross_action_lag_panel/lag_anchor_probe/evidence.json</code> · SHA256
+        <code>e2a09800f245831463f2cb884c7cc76b9febb9c691f1ce0ca2e4d84bd96e0b24</code></li>
+        <li><code>continuous_clap_candidate_probe/evidence.json</code> · SHA256
+        <code>ad132053bd7727f51faea54719c50fc69d6bc17b793604be40a806568b3b76b7</code></li>
+      </ul>
+      <h3>Publication scope</h3>
+      <p>This standalone public copy includes every media asset used in the visible analysis. Evidence hashes are retained above for provenance; no private repository or runtime service is required.</p>
+    </details>
+  </section>
+</main>
+<footer class="site-footer"><span>OpenResults</span><span>Public research evidence · 2026</span></footer>
+</body>
+</html>

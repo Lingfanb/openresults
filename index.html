@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="OpenResults publishes visual, inspectable research evidence with explicit scope and limitations.">
+  <title>OpenResults · Public research evidence</title>
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body class="home">
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="OpenResults home"><span class="brand-mark">O</span>OpenResults</a>
+    <nav aria-label="Primary navigation">
+      <a href="#result">Latest result</a>
+      <a href="#principles">Publication standard</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="home-hero" id="result">
+      <div class="hero-copy">
+        <p class="eyebrow">Research Definition · Result 001 · 22 July 2026</p>
+        <h1>Where physical motion tracking falls behind its reference</h1>
+        <p class="lede">A visual audit of 15 representative G1 motion clips finds that fast, continuously changing actions expose local timing delay, asymmetric amplitude changes, and wrist-level errors hidden by whole-body averages.</p>
+        <div class="status-row" aria-label="Result status">
+          <span>15 representative clips</span>
+          <span>Frozen SONIC</span>
+          <span>Zero residual</span>
+          <span class="status-draft">Analysis draft</span>
+        </div>
+      </div>
+      <figure class="hero-evidence">
+        <video controls preload="metadata" src="results/hierarchical-rollout-tracking-audit/assets/01-wave_arms/overlay.mp4"></video>
+        <figcaption>Wave-arms anchor: translucent blue is the GMR reference; the solid robot is the physical execution.</figcaption>
+      </figure>
+    </section>
+
+    <section class="finding-band" aria-labelledby="finding-title">
+      <div>
+        <p class="eyebrow">Primary finding</p>
+        <h2 id="finding-title">The failure is local and action-dependent.</h2>
+      </div>
+      <div class="finding-grid">
+        <article>
+          <strong>3–9 frames</strong>
+          <span>local extrema delay in the wave-arms anchor</span>
+        </article>
+        <article>
+          <strong>286.95 mm</strong>
+          <span>right-wrist MPKPE in the strongest visible case</span>
+        </article>
+        <article>
+          <strong>6 actions</strong>
+          <span>expanded with standalone video and quantitative plots</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="result-overview" aria-labelledby="overview-title">
+      <div class="overview-copy">
+        <p class="eyebrow">Evidence overview</p>
+        <h2 id="overview-title">Whole-body scores are not enough.</h2>
+        <p>Wave arms shows the clearest sustained delay and asymmetric wrist amplitude. High-V kick exposes arm delay more strongly than leg delay. Handshake demonstrates how a moderate whole-body score can conceal a concentrated wrist error. Dynamic walk acts as a negative visual anchor: the metric moves, but the overlay remains subtle.</p>
+        <a class="primary-link" href="results/hierarchical-rollout-tracking-audit/">Inspect the complete result</a>
+      </div>
+      <figure>
+        <img src="results/hierarchical-rollout-tracking-audit/assets/01-wave_arms/peak_trough_annotation/ee_position_peak_trough_annotated.png" alt="Annotated wave-arms end-effector peaks and troughs showing timing and amplitude differences">
+        <figcaption>Peak and trough annotation separates timing delay from right-wrist loss and left-wrist overrun.</figcaption>
+      </figure>
+    </section>
+
+    <section class="principles" id="principles" aria-labelledby="principles-title">
+      <p class="eyebrow">Publication standard</p>
+      <h2 id="principles-title">Evidence before narrative</h2>
+      <div class="principle-list">
+        <p><strong>Inspectability</strong><span>Representative media and quantitative plots live with the claim.</span></p>
+        <p><strong>Scope</strong><span>Claims remain bounded to the tested clips, controller, and evaluation protocol.</span></p>
+        <p><strong>Uncertainty</strong><span>Draft analysis and provisional proxies remain visibly labeled.</span></p>
+        <p><strong>Independence</strong><span>Every public asset is hosted here; no private source or token is required.</span></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><span>OpenResults</span><span>Public research evidence · 2026</span></footer>
+</body>
+</html>
