@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Validate result catalog
+        run: node scripts/validate-catalog.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload static site

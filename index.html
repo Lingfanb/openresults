@@ -3,84 +3,71 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="OpenResults publishes visual, inspectable research evidence with explicit scope and limitations.">
-  <title>OpenResults · Public research evidence</title>
+  <meta name="description" content="OpenResults is a browsable library of visual, inspectable research results.">
+  <title>OpenResults · Research result library</title>
   <link rel="stylesheet" href="assets/site.css">
+  <script src="assets/catalog.js" defer></script>
 </head>
-<body class="home">
-  <header class="site-header">
-    <a class="brand" href="./" aria-label="OpenResults home"><span class="brand-mark">O</span>OpenResults</a>
-    <nav aria-label="Primary navigation">
-      <a href="#result">Latest result</a>
-      <a href="#principles">Publication standard</a>
-    </nav>
+<body class="catalog-page">
+  <a class="skip-link" href="#catalog">Skip to results</a>
+
+  <header class="site-header catalog-header">
+    <div class="header-inner">
+      <a class="brand" href="./" aria-label="OpenResults home">
+        <span class="brand-mark" aria-hidden="true">O</span>
+        <span>OpenResults</span>
+      </a>
+      <p class="brand-description">Inspectable research evidence, organized by project.</p>
+      <span class="library-count" id="libraryCount" aria-live="polite">Loading results...</span>
+    </div>
   </header>
 
-  <main>
-    <section class="home-hero" id="result">
-      <div class="hero-copy">
-        <p class="eyebrow">Research Definition · Result 001 · 22 July 2026</p>
-        <h1>Where physical motion tracking falls behind its reference</h1>
-        <p class="lede">A visual audit of 15 representative G1 motion clips finds that fast, continuously changing actions expose local timing delay, asymmetric amplitude changes, and wrist-level errors hidden by whole-body averages.</p>
-        <div class="status-row" aria-label="Result status">
-          <span>15 representative clips</span>
-          <span>Frozen SONIC</span>
-          <span>Zero residual</span>
-          <span class="status-draft">Analysis draft</span>
-        </div>
-      </div>
-      <figure class="hero-evidence">
-        <video controls preload="metadata" src="results/hierarchical-rollout-tracking-audit/assets/01-wave_arms/overlay.mp4"></video>
-        <figcaption>Wave-arms anchor: translucent blue is the GMR reference; the solid robot is the physical execution.</figcaption>
-      </figure>
-    </section>
-
-    <section class="finding-band" aria-labelledby="finding-title">
+  <main class="catalog-main" id="catalog">
+    <section class="catalog-intro" aria-labelledby="catalog-title">
       <div>
-        <p class="eyebrow">Primary finding</p>
-        <h2 id="finding-title">The failure is local and action-dependent.</h2>
+        <p class="eyebrow">Public result library</p>
+        <h1 id="catalog-title">Research you can inspect.</h1>
+        <p>Each result keeps its claim, evidence, scope, and limitations together.</p>
       </div>
-      <div class="finding-grid">
-        <article>
-          <strong>3–9 frames</strong>
-          <span>local extrema delay in the wave-arms anchor</span>
-        </article>
-        <article>
-          <strong>286.95 mm</strong>
-          <span>right-wrist MPKPE in the strongest visible case</span>
-        </article>
-        <article>
-          <strong>6 actions</strong>
-          <span>expanded with standalone video and quantitative plots</span>
-        </article>
-      </div>
+      <dl class="catalog-stats" aria-label="Library summary">
+        <div><dt id="resultCount">0</dt><dd>results</dd></div>
+        <div><dt id="projectCount">0</dt><dd>projects</dd></div>
+        <div><dt id="evidenceCount">0</dt><dd>evidence items</dd></div>
+      </dl>
     </section>
 
-    <section class="result-overview" aria-labelledby="overview-title">
-      <div class="overview-copy">
-        <p class="eyebrow">Evidence overview</p>
-        <h2 id="overview-title">Whole-body scores are not enough.</h2>
-        <p>Wave arms shows the clearest sustained delay and asymmetric wrist amplitude. High-V kick exposes arm delay more strongly than leg delay. Handshake demonstrates how a moderate whole-body score can conceal a concentrated wrist error. Dynamic walk acts as a negative visual anchor: the metric moves, but the overlay remains subtle.</p>
-        <a class="primary-link" href="results/hierarchical-rollout-tracking-audit/">Inspect the complete result</a>
-      </div>
-      <figure>
-        <img src="results/hierarchical-rollout-tracking-audit/assets/01-wave_arms/peak_trough_annotation/ee_position_peak_trough_annotated.png" alt="Annotated wave-arms end-effector peaks and troughs showing timing and amplitude differences">
-        <figcaption>Peak and trough annotation separates timing delay from right-wrist loss and left-wrist overrun.</figcaption>
-      </figure>
+    <section class="catalog-tools" aria-label="Filter results">
+      <label class="search-field">
+        <span class="visually-hidden">Search results</span>
+        <input id="resultSearch" type="search" autocomplete="off" placeholder="Search title, finding, or tag">
+      </label>
+      <label class="select-field">
+        <span>Project</span>
+        <select id="projectFilter"><option value="all">All projects</option></select>
+      </label>
+      <label class="select-field">
+        <span>Status</span>
+        <select id="statusFilter"><option value="all">All statuses</option></select>
+      </label>
+      <button class="clear-filters" id="clearFilters" type="button" hidden>Clear</button>
     </section>
 
-    <section class="principles" id="principles" aria-labelledby="principles-title">
-      <p class="eyebrow">Publication standard</p>
-      <h2 id="principles-title">Evidence before narrative</h2>
-      <div class="principle-list">
-        <p><strong>Inspectability</strong><span>Representative media and quantitative plots live with the claim.</span></p>
-        <p><strong>Scope</strong><span>Claims remain bounded to the tested clips, controller, and evaluation protocol.</span></p>
-        <p><strong>Uncertainty</strong><span>Draft analysis and provisional proxies remain visibly labeled.</span></p>
-        <p><strong>Independence</strong><span>Every public asset is hosted here; no private source or token is required.</span></p>
-      </div>
-    </section>
+    <div class="catalog-status" id="catalogStatus" aria-live="polite"></div>
+    <div class="result-groups" id="resultGroups" aria-busy="true"></div>
+
+    <div class="empty-state" id="emptyState" hidden>
+      <strong>No matching results</strong>
+      <p>Try a different search or clear the current filters.</p>
+    </div>
+
+    <noscript>
+      <p class="empty-state">JavaScript is required to load the result catalog. The published result remains available at <a href="results/hierarchical-rollout-tracking-audit/">Hierarchical rollout tracking audit</a>.</p>
+    </noscript>
   </main>
 
-  <footer class="site-footer"><span>OpenResults</span><span>Public research evidence · 2026</span></footer>
+  <footer class="site-footer">
+    <span>OpenResults</span>
+    <span>Evidence before narrative · Updated <time id="catalogUpdated">2026-07-22</time></span>
+  </footer>
 </body>
 </html>
