@@ -27,7 +27,9 @@
   };
 
   const setLink = (link, href) => {
-    link.href = new URL(href, document.baseURI).href;
+    const url = new URL(href, document.baseURI);
+    if (assetVersion && url.origin === location.origin) url.searchParams.set("v", assetVersion);
+    link.href = url.href;
     return link;
   };
 
