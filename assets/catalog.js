@@ -4,6 +4,9 @@
   const root = document.getElementById("resultGroups");
   if (!root) return;
 
+  const scriptUrl = document.currentScript ? new URL(document.currentScript.src) : null;
+  const assetVersion = scriptUrl ? scriptUrl.searchParams.get("v") : "";
+
   const search = document.getElementById("resultSearch");
   const projectFilter = document.getElementById("projectFilter");
   const statusFilter = document.getElementById("statusFilter");
@@ -12,6 +15,7 @@
   const clearButton = document.getElementById("clearFilters");
   const emptyState = document.getElementById("emptyState");
   const catalogStatus = document.getElementById("catalogStatus");
+  const catalogTools = document.querySelector(".catalog-tools");
   const state = { query: "", project: "all", status: "all" };
   let catalog = [];
 
@@ -141,7 +145,10 @@
     render();
   }
 
-  fetch(new URL("data/results.json", document.baseURI))
+  const catalogUrl = new URL("data/results.json", document.baseURI);
+  if (assetVersion) catalogUrl.searchParams.set("v", assetVersion);
+
+  fetch(catalogUrl)
     .then((response) => {
       if (!response.ok) throw new Error(`Catalog request failed: ${response.status}`);
       return response.json();
@@ -171,7 +178,8 @@
     })
     .catch((error) => {
       root.setAttribute("aria-busy", "false");
-      root.append(make("p", "load-error", "The result catalog could not be loaded. Refresh the page to try again."));
+      catalogTools.hidden = true;
+      root.replaceChildren(make("p", "load-error", "The result catalog could not be loaded. Refresh the page to try again."));
       console.error(error);
     });
 

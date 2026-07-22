@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="OpenResults is a browsable library of visual, inspectable research results.">
   <title>OpenResults · Research result library</title>
-  <link rel="stylesheet" href="assets/site.css">
-  <script src="assets/catalog.js" defer></script>
+  <link rel="stylesheet" href="assets/site.css?v=__BUILD_VERSION__">
+  <script src="assets/catalog.js?v=__BUILD_VERSION__" defer></script>
 </head>
 <body class="catalog-page">
   <a class="skip-link" href="#catalog">Skip to results</a>
@@ -35,11 +35,11 @@
         <span class="visually-hidden">Search results</span>
         <input id="resultSearch" type="search" autocomplete="off" placeholder="Search title, finding, or tag">
       </label>
-      <label class="select-field" id="projectField">
+      <label class="select-field" id="projectField" hidden>
         <span>Project</span>
         <select id="projectFilter"><option value="all">All projects</option></select>
       </label>
-      <label class="select-field" id="statusField">
+      <label class="select-field" id="statusField" hidden>
         <span>Status</span>
         <select id="statusFilter"><option value="all">All statuses</option></select>
       </label>

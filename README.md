@@ -14,3 +14,5 @@ python scripts/audit-public-site.py .
 ```
 
 The published site contains copied public artifacts only. It does not connect to private report repositories or runtime services.
+
+GitHub Actions replaces `__BUILD_VERSION__` with the deploying commit SHA so HTML, CSS, JavaScript, and catalog data cannot be mixed across browser cache versions.
