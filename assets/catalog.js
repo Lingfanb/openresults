@@ -7,6 +7,8 @@
   const search = document.getElementById("resultSearch");
   const projectFilter = document.getElementById("projectFilter");
   const statusFilter = document.getElementById("statusFilter");
+  const projectField = document.getElementById("projectField");
+  const statusField = document.getElementById("statusField");
   const clearButton = document.getElementById("clearFilters");
   const emptyState = document.getElementById("emptyState");
   const catalogStatus = document.getElementById("catalogStatus");
@@ -44,7 +46,7 @@
     const card = make("article", "result-card");
 
     const visualLink = setLink(make("a", "result-visual"), result.path);
-    visualLink.setAttribute("aria-label", `Open ${result.reportTitle || result.title}`);
+    visualLink.setAttribute("aria-label", `Open ${result.title}`);
     const image = make("img");
     image.src = new URL(result.thumbnail, document.baseURI).href;
     image.alt = result.thumbnailAlt;
@@ -54,7 +56,9 @@
     const body = make("div", "result-card-body");
     const meta = make("div", "result-meta");
     meta.append(make("span", "result-category", result.category));
-    meta.append(make("time", "", formatDate(result.date)));
+    const date = make("time", "", formatDate(result.date));
+    date.dateTime = result.date;
+    meta.append(date);
 
     const heading = make("h3");
     const titleLink = setLink(make("a", "", result.title), result.path);
@@ -77,8 +81,8 @@
 
     const actions = make("div", "result-actions");
     const openLink = actions.appendChild(setLink(make("a", "primary-action", "Open result"), result.path));
-    openLink.setAttribute("aria-label", `Open ${result.reportTitle || result.title}`);
-    actions.appendChild(setLink(make("a", "secondary-action", "View evidence"), result.evidencePath || `${result.path}#results`));
+    openLink.setAttribute("aria-label", `Open ${result.title}`);
+    actions.appendChild(setLink(make("a", "secondary-action", "View evidence"), `${result.path}#results`));
 
     body.append(meta, heading, status, summary, metrics, tags, actions);
     card.append(visualLink, body);
@@ -88,7 +92,7 @@
   function render() {
     const query = state.query.trim().toLocaleLowerCase();
     const filtered = catalog.filter((result) => {
-      const haystack = [result.title, result.reportTitle, result.summary, result.project, result.category, ...result.tags]
+      const haystack = [result.title, result.summary, result.project, result.category, ...result.tags]
         .join(" ")
         .toLocaleLowerCase();
       return (!query || haystack.includes(query))
@@ -119,9 +123,7 @@
     const filtersActive = Boolean(query || state.project !== "all" || state.status !== "all");
     clearButton.hidden = !filtersActive;
     emptyState.hidden = filtered.length > 0;
-    catalogStatus.textContent = filtersActive
-      ? `${filtered.length} of ${catalog.length} results shown`
-      : `${catalog.length} result${catalog.length === 1 ? "" : "s"}, newest first`;
+    catalogStatus.textContent = filtersActive ? `${filtered.length} of ${catalog.length} results shown` : "";
     root.setAttribute("aria-busy", "false");
   }
 
@@ -147,24 +149,24 @@
     .then((data) => {
       catalog = data.results;
       const params = new URLSearchParams(location.search);
+      const projects = [...new Set(catalog.map((item) => item.project))];
+      const statuses = [...new Set(catalog.map((item) => item.status))];
       state.query = params.get("q") || "";
-      state.project = params.get("project") || "all";
-      state.status = params.get("status") || "all";
+      state.project = projects.includes(params.get("project")) ? params.get("project") : "all";
+      state.status = statuses.includes(params.get("status")) ? params.get("status") : "all";
       search.value = state.query;
 
-      addOptions(projectFilter, [...new Set(catalog.map((item) => item.project))]);
-      addOptions(statusFilter, [...new Set(catalog.map((item) => item.status))]);
+      addOptions(projectFilter, projects);
+      addOptions(statusFilter, statuses);
       projectFilter.value = state.project;
       statusFilter.value = state.status;
+      projectField.hidden = projects.length < 2;
+      statusField.hidden = statuses.length < 2;
 
-      const projects = new Set(catalog.map((item) => item.project));
-      const evidence = catalog.reduce((total, item) => total + Number(item.evidenceCount || 0), 0);
-      document.getElementById("libraryCount").textContent = `${catalog.length} published result${catalog.length === 1 ? "" : "s"}`;
-      document.getElementById("resultCount").textContent = catalog.length;
-      document.getElementById("projectCount").textContent = projects.size;
-      document.getElementById("evidenceCount").textContent = evidence;
-      document.getElementById("catalogUpdated").textContent = data.updated;
-      document.getElementById("catalogUpdated").dateTime = data.updated;
+      const latestDate = catalog.reduce((latest, item) => item.date > latest ? item.date : latest, "");
+      document.getElementById("catalogUpdated").textContent = latestDate;
+      document.getElementById("catalogUpdated").dateTime = latestDate;
+      syncUrl();
       render();
     })
     .catch((error) => {
@@ -185,11 +187,5 @@
     statusFilter.value = "all";
     update();
     search.focus();
-  });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "/" && document.activeElement !== search) {
-      event.preventDefault();
-      search.focus();
-    }
   });
 }());

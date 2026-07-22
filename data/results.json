@@ -1,17 +1,14 @@
 {
-  "updated": "2026-07-22",
   "results": [
     {
       "slug": "hierarchical-rollout-tracking-audit",
       "title": "Where physical motion tracking falls behind its reference",
-      "reportTitle": "Hierarchical rollout tracking audit",
       "date": "2026-07-22",
       "project": "VAD Alignment",
       "category": "Research Definition",
       "status": "Analysis draft",
       "summary": "Fast, continuously changing actions expose local timing delay, asymmetric amplitude changes, and wrist-level errors hidden by whole-body averages.",
       "path": "results/hierarchical-rollout-tracking-audit/",
-      "evidencePath": "results/hierarchical-rollout-tracking-audit/#results",
       "thumbnail": "results/hierarchical-rollout-tracking-audit/assets/01-wave_arms/peak_trough_annotation/ee_position_peak_trough_annotated.png",
       "thumbnailAlt": "Annotated wave-arms end-effector peaks and troughs",
       "tags": ["Humanoid control", "Motion tracking", "G1", "SONIC"],
@@ -19,9 +16,7 @@
         {"value": "3-9 frames", "label": "local timing delay"},
         {"value": "286.95 mm", "label": "largest wrist MPKPE"},
         {"value": "6 actions", "label": "expanded evidence"}
-      ],
-      "evidenceCount": 20,
-      "featured": true
+      ]
     }
   ]
 }

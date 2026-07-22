@@ -5,42 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hierarchical rollout tracking audit：GMR reference → SONIC physical execution</title>
 <meta name="description" content="A visual audit of where a frozen SONIC controller loses timing, amplitude, and local geometry across 15 representative G1 motion clips.">
-<style>
-  :root{--bg:#08111d;--panel:#0e1b2b;--ink:#e9f1fb;--soft:#b9c7d8;--line:#27415e;
-    --cyan:#62b6ff;--green:#78d6a3;--red:#ef7f8d;--yellow:#f1d06c;
-    --mono:"SFMono-Regular",Consolas,monospace}
-  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
-    font:15px/1.62 Inter,system-ui,-apple-system,"Noto Sans CJK SC",sans-serif}
-  main{max-width:1060px;margin:auto;padding:36px 22px 70px}h1{font-size:28px;margin:6px 0 12px}
-  h2{font-size:20px;color:var(--cyan);margin:0 0 14px}h3{font-size:16px;margin:20px 0 8px}
-  p,li,td{color:var(--soft)}a{color:#8bc8ff}code,pre{font-family:var(--mono)}
-  section{margin:16px 0;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:9px}
-  .meta{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 18px}.chip{border:1px solid var(--line);
-    border-radius:999px;padding:4px 9px;color:var(--soft);font-size:12px}.pass{color:var(--green)}
-  .fail{color:var(--red)}.draft,.partial{color:var(--yellow)}ul{margin:8px 0;padding-left:21px}
-  li{margin:5px 0}table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
-  th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--ink)}
-  figure{margin:16px 0}img,video{width:100%;border:1px solid var(--line);border-radius:7px;background:#fff}
-  figcaption{color:#8fa2b8;font-size:12px;margin-top:6px}details{margin:10px 0;border-top:1px solid var(--line);padding-top:9px}
-  summary{cursor:pointer;color:#a9d5ff}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#06101a;
-    padding:12px;border-radius:6px;color:#d6e9ff;font-size:12px}.scroll{overflow-x:auto}
-  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0}.node{padding:12px 9px;
-    border:1px solid var(--line);border-radius:7px;background:#0a1725;text-align:center;color:var(--soft);font-size:12px}
-  .node strong{display:block;color:var(--ink);font-size:14px}.tested{border-color:#3976a8}.limited{border-color:#a88a39}
-  .danger{border-color:#a8505d}.right{text-align:right}.nowrap{white-space:nowrap}
-  .evidence-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;margin:16px 0}
-  .evidence-grid figure{width:100%;margin:0}.evidence-grid img,.evidence-grid video{display:block;width:100%}
-  .action-block{margin:20px 0 30px;padding-top:4px;border-top:1px solid var(--line)}
-  .action-block h3{color:var(--ink);font-size:18px}.observation{padding:10px 13px;border-left:3px solid var(--cyan);
-    background:#0a1725;color:var(--soft);border-radius:0 6px 6px 0}.status{font-size:11px;color:var(--yellow)}
-  @media(max-width:760px){main{padding:24px 12px 50px}section{padding:17px}h1{font-size:23px}
-    .flow,.evidence-grid{grid-template-columns:1fr}.node{text-align:left}}
-</style>
 <link rel="stylesheet" href="../../assets/site.css">
 </head>
 <body class="detail-page">
 <header class="site-header">
-  <a class="brand" href="../../index.html" aria-label="OpenResults home"><span class="brand-mark">O</span>OpenResults</a>
+  <a class="brand" href="../../index.html" aria-label="OpenResults home"><span class="brand-mark">O</span><span>OpenResults</span></a>
   <nav aria-label="Result navigation">
     <a href="#conclusion">Conclusion</a>
     <a href="#results">Evidence</a>
@@ -77,7 +46,7 @@
 
   <section id="method">
     <h2>2 · Method</h2>
-    <div class="flow" style="grid-template-columns:repeat(4,1fr)" aria-label="Reviewed rollout">
+    <div class="flow" aria-label="Reviewed rollout">
       <div class="node tested"><strong>Reference</strong>GMR-retargeted G1 motion<br>50 Hz target trajectory</div>
       <div class="node tested"><strong>Controller</strong>released frozen SONIC ONNX<br>zero residual</div>
       <div class="node tested"><strong>Execution</strong>MuJoCo physical rollout<br>frame-aligned with reference</div>
@@ -127,13 +96,13 @@
       <div class="evidence-grid">
         <figure><video controls preload="metadata" src="assets/01-wave_arms/overlay.mp4"></video>
         <figcaption>Overlap video：蓝色为 reference，实体为 execution。</figcaption></figure>
-        <figure><img src="assets/01-wave_arms/peak_trough_annotation/ee_position_peak_trough_annotated.png" alt="Wave-arms peak trough delay and amplitude">
+        <figure><img loading="lazy" decoding="async" src="assets/01-wave_arms/peak_trough_annotation/ee_position_peak_trough_annotated.png" alt="Wave-arms peak trough delay and amplitude">
         <figcaption>EE peak/trough：显示局部 delay、右腕缩幅和左腕过冲。</figcaption></figure>
-        <figure><img src="assets/01-wave_arms/ee_dynamics.png" alt="Wave-arms EE velocity acceleration">
+        <figure><img loading="lazy" decoding="async" src="assets/01-wave_arms/ee_dynamics.png" alt="Wave-arms EE velocity acceleration">
         <figcaption>EE dynamics：velocity 的 delay/幅度可见；raw acceleration 高频噪声较强。</figcaption></figure>
-        <figure><img src="assets/01-wave_arms/keypoint_error_over_time.png" alt="Wave-arms keypoint error heatmap">
+        <figure><img loading="lazy" decoding="async" src="assets/01-wave_arms/keypoint_error_over_time.png" alt="Wave-arms keypoint error heatmap">
         <figcaption>Keypoint heatmap：误差主要集中在左右 wrist。</figcaption></figure>
-        <figure><img src="assets/01-wave_arms/va_decay_over_time.png" alt="Wave-arms V A decay over time">
+        <figure><img loading="lazy" decoding="async" src="assets/01-wave_arms/va_decay_over_time.png" alt="Wave-arms V A decay over time">
         <figcaption>V/A decay：1.0-s matched windows，0.2-s stride；signed decay = reference − execution；A-proxy provisional。</figcaption></figure>
       </div>
       <div class="scroll"><table><thead><tr><th>MPJPE-L ↓</th><th>PKE-P95 ↓</th><th>Right wrist MPKPE ↓</th><th>Left wrist MPKPE ↓</th><th>Local extrema delay</th></tr></thead>
@@ -147,11 +116,11 @@
       <div class="evidence-grid">
         <figure><video controls preload="metadata" src="assets/02-kick/overlay.mp4"></video>
         <figcaption>Overlap video：手臂 delay 比踢腿本身更明显。</figcaption></figure>
-        <figure><img src="assets/02-kick/ee_position_vs_time_standard_scale.png" alt="High-V kick EE position versus time">
+        <figure><img loading="lazy" decoding="async" src="assets/02-kick/ee_position_vs_time_standard_scale.png" alt="High-V kick EE position versus time">
         <figcaption>EE position-vs-time：显示 reference/execution 分轴差异。</figcaption></figure>
-        <figure><img src="assets/02-kick/ee_trajectory_3d.png" alt="High-V kick 3D EE trajectory">
+        <figure><img loading="lazy" decoding="async" src="assets/02-kick/ee_trajectory_3d.png" alt="High-V kick 3D EE trajectory">
         <figcaption>3D EE trajectory：空间路径差异比单一视角更清楚。</figcaption></figure>
-        <figure><img src="assets/02-kick/va_decay_over_time.png" alt="High-V kick V A decay over time">
+        <figure><img loading="lazy" decoding="async" src="assets/02-kick/va_decay_over_time.png" alt="High-V kick V A decay over time">
         <figcaption>V/A decay：与该 kick 视频和 EE 轨迹使用相同的 tracking 时间段。</figcaption></figure>
       </div>
       <div class="scroll"><table><thead><tr><th>MPJPE-L ↓</th><th>MPJPE-G ↓</th><th>PKE-P95 ↓</th><th>Largest MPKPE</th><th>Timing label</th></tr></thead>
@@ -165,9 +134,9 @@
       <div class="evidence-grid">
         <figure><video controls preload="metadata" src="assets/03-kick/overlay.mp4"></video>
         <figcaption>Overlap video：reference 与 execution 总体接近。</figcaption></figure>
-        <figure><img src="assets/03-kick/ee_position_vs_time_standard_scale.png" alt="Typical kick EE position versus time">
+        <figure><img loading="lazy" decoding="async" src="assets/03-kick/ee_position_vs_time_standard_scale.png" alt="Typical kick EE position versus time">
         <figcaption>EE position-vs-time：仍有数值差异，但视觉影响较轻。</figcaption></figure>
-        <figure><img src="assets/03-kick/va_decay_over_time.png" alt="Typical kick V A decay over time">
+        <figure><img loading="lazy" decoding="async" src="assets/03-kick/va_decay_over_time.png" alt="Typical kick V A decay over time">
         <figcaption>V/A decay：与 high-V kick 使用同一 matched-window 口径。</figcaption></figure>
       </div>
       <div class="scroll"><table><thead><tr><th>MPJPE-L ↓</th><th>MPJPE-G ↓</th><th>PKE-P95 ↓</th><th>Largest MPKPE</th><th>Visual review</th></tr></thead>
@@ -181,9 +150,9 @@
       <div class="evidence-grid">
         <figure><video controls preload="metadata" src="assets/05-punch/overlay.mp4"></video>
         <figcaption>Punch overlap：蓝色为 reference，实体为 execution。</figcaption></figure>
-        <figure><img src="assets/05-punch/ee_position_vs_time_standard_scale.png" alt="Punch EE position versus time">
+        <figure><img loading="lazy" decoding="async" src="assets/05-punch/ee_position_vs_time_standard_scale.png" alt="Punch EE position versus time">
         <figcaption>Punch EE position-vs-time：全宽显示左右 wrist 的 reference/execution 时序。</figcaption></figure>
-        <figure><img src="assets/05-punch/va_decay_over_time.png" alt="Punch V A decay over time">
+        <figure><img loading="lazy" decoding="async" src="assets/05-punch/va_decay_over_time.png" alt="Punch V A decay over time">
         <figcaption>Punch V/A decay：显示 matched-window proxy 与 reference − execution 差值。</figcaption></figure>
       </div>
       <div class="scroll"><table><thead><tr><th>MPJPE-L ↓</th><th>MPJPE-G ↓</th><th>PKE-P95 ↓</th><th>Largest MPKPE</th><th>Evidence role</th></tr></thead>
@@ -197,9 +166,9 @@
       <div class="evidence-grid">
         <figure><video controls preload="metadata" src="assets/08-handshake/overlay.mp4"></video>
         <figcaption>Handshake overlap：蓝色为 reference，实体为 execution。</figcaption></figure>
-        <figure><img src="assets/08-handshake/ee_position_vs_time_standard_scale.png" alt="Handshake EE position versus time">
+        <figure><img loading="lazy" decoding="async" src="assets/08-handshake/ee_position_vs_time_standard_scale.png" alt="Handshake EE position versus time">
         <figcaption>Handshake EE position-vs-time：全宽显示左右 wrist 的 reference/execution 时序。</figcaption></figure>
-        <figure><img src="assets/08-handshake/va_decay_over_time.png" alt="Handshake V A decay over time">
+        <figure><img loading="lazy" decoding="async" src="assets/08-handshake/va_decay_over_time.png" alt="Handshake V A decay over time">
         <figcaption>Handshake V/A decay：与局部 wrist error 并列审查，不将两者合并成总分。</figcaption></figure>
       </div>
       <div class="scroll"><table><thead><tr><th>MPJPE-L ↓</th><th>MPJPE-G ↓</th><th>PKE-P95 ↓</th><th>Largest MPKPE</th><th>Evidence role</th></tr></thead>
@@ -213,7 +182,7 @@
       <div class="evidence-grid">
         <figure><video controls preload="metadata" src="assets/06-walk/overlay.mp4"></video>
         <figcaption>Walk overlap：作为 visually subtle/negative anchor。</figcaption></figure>
-        <figure><img src="assets/06-walk/va_decay_over_time.png" alt="Dynamic walk V A decay over time">
+        <figure><img loading="lazy" decoding="async" src="assets/06-walk/va_decay_over_time.png" alt="Dynamic walk V A decay over time">
         <figcaption>Walk V/A decay：与 overlay 的视觉负锚点并列审查。</figcaption></figure>
       </div>
       <div class="scroll"><table><thead><tr><th>MPJPE-L ↓</th><th>MPJPE-G ↓</th><th>PKE-P95 ↓</th><th>Largest MPKPE</th><th>Visual review</th></tr></thead>

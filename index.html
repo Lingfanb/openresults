@@ -18,7 +18,6 @@
         <span>OpenResults</span>
       </a>
       <p class="brand-description">Inspectable research evidence, organized by project.</p>
-      <span class="library-count" id="libraryCount" aria-live="polite">Loading results...</span>
     </div>
   </header>
 
@@ -29,11 +28,6 @@
         <h1 id="catalog-title">Research you can inspect.</h1>
         <p>Each result keeps its claim, evidence, scope, and limitations together.</p>
       </div>
-      <dl class="catalog-stats" aria-label="Library summary">
-        <div><dt id="resultCount">0</dt><dd>results</dd></div>
-        <div><dt id="projectCount">0</dt><dd>projects</dd></div>
-        <div><dt id="evidenceCount">0</dt><dd>evidence items</dd></div>
-      </dl>
     </section>
 
     <section class="catalog-tools" aria-label="Filter results">
@@ -41,11 +35,11 @@
         <span class="visually-hidden">Search results</span>
         <input id="resultSearch" type="search" autocomplete="off" placeholder="Search title, finding, or tag">
       </label>
-      <label class="select-field">
+      <label class="select-field" id="projectField">
         <span>Project</span>
         <select id="projectFilter"><option value="all">All projects</option></select>
       </label>
-      <label class="select-field">
+      <label class="select-field" id="statusField">
         <span>Status</span>
         <select id="statusFilter"><option value="all">All statuses</option></select>
       </label>

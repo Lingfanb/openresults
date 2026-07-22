@@ -10,7 +10,7 @@ A public, standalone library of research results with inspectable media, explici
 
 ```bash
 node scripts/validate-catalog.mjs
-python ~/.codex/skills/openresults-site/scripts/audit_public_site.py .
+python scripts/audit-public-site.py .
 ```
 
 The published site contains copied public artifacts only. It does not connect to private report repositories or runtime services.

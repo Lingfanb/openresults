@@ -27,6 +27,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Validate result catalog
         run: node scripts/validate-catalog.mjs
+      - name: Audit public artifact
+        run: python scripts/audit-public-site.py .
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload static site
