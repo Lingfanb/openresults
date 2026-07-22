@@ -130,7 +130,8 @@
     if (state.query) params.set("q", state.query);
     if (state.project !== "all") params.set("project", state.project);
     if (state.status !== "all") params.set("status", state.status);
-    history.replaceState(null, "", `${location.pathname}${params.size ? `?${params}` : ""}${location.hash}`);
+    const queryString = params.toString();
+    history.replaceState(null, "", `${location.pathname}${queryString ? `?${queryString}` : ""}${location.hash}`);
   }
 
   function update() {
